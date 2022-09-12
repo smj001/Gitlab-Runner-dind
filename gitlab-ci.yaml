@@ -1,0 +1,20 @@
+image: "docker:20"
+variables:
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  REGISTRY_URL: iran-registry.itsmj.ir
+  IMAGE_TAG: $CI_PIPELINE_ID-$CI_COMMIT_BRANCH-$CI_COMMIT_SHORT_SHA
+  REGISTRY_IMAGE_URL: $REGISTRY_URL/$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME:$IMAGE_TAG
+  REGISTRY_IMAGE_LST: $REGISTRY_URL/$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME:latest
+services:
+  - docker:20.10.16-dind
+before_script:
+  - docker info
+build:
+  stage: build
+  script:
+    - docker build -t $REGISTRY_IMAGE_URL -t $REGISTRY_IMAGE_LST .
+    - docker push $REGISTRY_IMAGE_URL
+    - docker push $REGISTRY_IMAGE_LST
+    - echo "IMAGE IS= $REGISTRY_IMAGE_URL"
+    - echo "IMAGE LST= $REGISTRY_IMAGE_LST"
